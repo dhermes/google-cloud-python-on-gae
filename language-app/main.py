@@ -19,6 +19,8 @@ import sys
 
 import boltons.tbutils
 import flask
+import pkg_resources
+import six
 
 
 app = flask.Flask(__name__)
@@ -57,6 +59,14 @@ def main():
         repr(os.devnull),
         '>>> os.path.exists(os.devnull)',
         repr(os.path.exists(os.devnull)),
+        '>>> import six',
+        '>>> six',
+        repr(six),
+        '>>> six.__version__',
+        repr(six.__version__),
+        '>>> import pkg_resources',
+        '>>> pkg_resources',
+        repr(pkg_resources),
     )
 
 

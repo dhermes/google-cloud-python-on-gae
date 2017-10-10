@@ -143,12 +143,27 @@ def patch_dev_fake_file():
     stubs.FakeFile.__init__ = _fake_file_init
 
 
+
+def clear_imports(mod_name):
+    """Remove cached imports for a module.
+
+    We may want to do this if we provide an over-ride in ``lib/`` for an
+    out-of-date package that comes with the SDK (or accidentally comes
+    in the environment running the ``dev_appserver``).
+    """
+    for key in sys.modules.keys():
+        if key.startswith(mod_name):
+            del sys.modules[key]
+
+
 def all_updates():
     vendor.add('lib')
     stub_replace('subprocess')
     stub_replace('_multiprocessing')
     patch_open_for_devnull()
     patch_dev_fake_file()
+    clear_imports('pkg_resources')
+    clear_imports('six')
 
 
 all_updates()
