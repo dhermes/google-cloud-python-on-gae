@@ -12,18 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# NOTE:
-# The library versions are intended to match those in
-# https://cloud.google.com/appengine/docs/standard/python/tools/built-in-libraries-27
+"""Stub ``ctypes`` module.
 
-# LEVEL 0:
-setuptools==0.6c11
-six==1.9.0
-
-# LEVEL 1:
-enum34==0.9.23
-protobuf==3.0.0
-futures==3.0.5
-
-# LEVEL 2:
-grpcio==1.0.0
+Used by ``setuptools.windows_helpers``.
+"""

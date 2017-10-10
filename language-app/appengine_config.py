@@ -44,6 +44,8 @@ def stub_replace(mod_name):
        interface.
     * ``_multiprocessing``: Imported un-protected in ``__init__.py`` for
       ``multiprocessing`` but not provided in GAE SDK.
+    * ``ctypes``: Imported by ``setuptools.windows_support`` (gets imported
+      when ``setuptools`` does).
     """
     sys.modules.pop(mod_name, None)
     file_obj, filename, details = imp.find_module(mod_name, ['stubs'])
@@ -160,9 +162,12 @@ def all_updates():
     vendor.add('lib')
     stub_replace('subprocess')
     stub_replace('_multiprocessing')
+    stub_replace('ctypes')
     patch_open_for_devnull()
     patch_dev_fake_file()
+    clear_imports('google.protobuf')
     clear_imports('pkg_resources')
+    clear_imports('setuptools')
     clear_imports('six')
 
 

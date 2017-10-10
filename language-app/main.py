@@ -19,7 +19,10 @@ import sys
 
 import boltons.tbutils
 import flask
+import google
+import google.protobuf
 import pkg_resources
+import setuptools
 import six
 
 
@@ -64,9 +67,15 @@ def main():
         repr(six),
         '>>> six.__version__',
         repr(six.__version__),
+        '>>> import setuptools',
+        '>>> setuptools',
+        repr(setuptools),
         '>>> import pkg_resources',
         '>>> pkg_resources',
         repr(pkg_resources),
+        '>>> import google.protobuf',
+        '>>> google.protobuf',
+        repr(google.protobuf),
     )
 
 
