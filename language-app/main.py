@@ -14,6 +14,7 @@
 
 import sys
 
+import boltons.tbutils
 import flask
 
 
@@ -21,7 +22,9 @@ app = flask.Flask(__name__)
 
 
 @app.route('/')
-def hello():
+def main():
+    import _multiprocessing
+    import subprocess
     return '\n'.join([
         '<pre>',
         '>>> import sys',
@@ -33,6 +36,12 @@ def hello():
         flask.escape(repr(sys.prefix)),
         '>>> getattr(sys, \'real_prefix\', None)',
         flask.escape(repr(getattr(sys, 'real_prefix', None))),
+        '>>> import subprocess',
+        '>>> subprocess',
+        flask.escape(repr(subprocess)),
+        '>>> import _multiprocessing',
+        '>>> _multiprocessing',
+        flask.escape(repr(_multiprocessing)),
         '</pre>',
     ])
 
@@ -42,6 +51,18 @@ def do_import_live():
     try:
         from google.cloud import language
 
-        return flask.escape(repr(language))
-    except ImportError:
-        return 'Failed import'
+        return '\n'.join([
+            '<pre>',
+            '>>> from google.cloud import language',
+            '>>> language',
+            flask.escape(repr(language)),
+            '</pre>',
+        ])
+    except:
+        exc_info = boltons.tbutils.ExceptionInfo.from_current()
+        exc_str = exc_info.get_formatted()
+        return '\n'.join([
+            '<pre>',
+            flask.escape(exc_str),
+            '</pre>',
+        ])

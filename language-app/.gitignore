@@ -1,4 +1,9 @@
-appengine_config.pyc
+# Generated directories.
 clean-env
 lib
+
+# `*.pyc` files (Python 2.7 specific)
+appengine_config.pyc
 main.pyc
+stubs/_multiprocessing.pyc
+stubs/subprocess.pyc

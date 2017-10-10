@@ -59,3 +59,4 @@ google-gax==0.15.15
 # LEVEL 4:
 Flask==0.12.2
 google-cloud-language==0.29.0
+boltons==17.1.0
