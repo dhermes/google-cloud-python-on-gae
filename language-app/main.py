@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+
 import flask
 
 
@@ -20,4 +22,26 @@ app = flask.Flask(__name__)
 
 @app.route('/')
 def hello():
-    return 'Hello World!'
+    return '\n'.join([
+        '<pre>',
+        '>>> import sys',
+        '>>> sys',
+        flask.escape(repr(sys)),
+        '>>> sys.executable',
+        flask.escape(repr(sys.executable)),
+        '>>> sys.prefix',
+        flask.escape(repr(sys.prefix)),
+        '>>> getattr(sys, \'real_prefix\', None)',
+        flask.escape(repr(getattr(sys, 'real_prefix', None))),
+        '</pre>',
+    ])
+
+
+@app.route('/import')
+def do_import_live():
+    try:
+        from google.cloud import language
+
+        return flask.escape(repr(language))
+    except ImportError:
+        return 'Failed import'

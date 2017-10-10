@@ -31,15 +31,20 @@ language-app/lib: language-app/requirements.txt
 	        --target lib \
 	        --requirement requirements.txt
 
-language-app: language-app/lib language-app/app.yaml
+language-app/clean-env:
+	cd language-app && \
+	    $(PY27) -m virtualenv --python=$(PY27) clean-env
+
+language-app: language-app/lib language-app/clean-env language-app/app.yaml
 	$(GCLOUD) components update
 	cd language-app && \
-	    $(PY27) $(DEV_APPSERVER) app.yaml
+	    clean-env/bin/python2.7 $(DEV_APPSERVER) app.yaml
 
 clean:
 	rm -f \
 	    language-app/*pyc
 	rm -fr \
+	    language-app/clean-env \
 	    language-app/lib
 
 .PHONY: help language-app clean
