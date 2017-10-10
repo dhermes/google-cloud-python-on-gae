@@ -30,10 +30,15 @@ language-app/lib: language-app/requirements.txt
 	    $(PY27) -m pip install \
 	        --target lib \
 	        --requirement requirements.txt
+	cd language-app && rm -fr lib/grpc
+	cd language-app && rm -fr lib/grpcio-1.4.0.dist-info
 
 language-app/clean-env:
 	cd language-app && \
 	    $(PY27) -m virtualenv --python=$(PY27) clean-env
+	cd language-app && \
+	    clean-env/bin/pip install \
+	        --requirement env-requirements.txt
 
 language-app: language-app/lib language-app/clean-env language-app/app.yaml
 	$(GCLOUD) components update
@@ -42,7 +47,8 @@ language-app: language-app/lib language-app/clean-env language-app/app.yaml
 
 clean:
 	rm -f \
-	    language-app/*pyc
+	    language-app/*pyc \
+	    language-app/stubs/*pyc
 	rm -fr \
 	    language-app/clean-env \
 	    language-app/lib
