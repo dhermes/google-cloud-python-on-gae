@@ -13,7 +13,6 @@
 # limitations under the License.
 
 PY27?=python2.7
-PIP?=pip
 DEV_APPSERVER?=$(shell which dev_appserver.py)
 GCLOUD?=gcloud
 
@@ -28,7 +27,7 @@ help:
 language-app/lib: language-app/requirements.txt
 	rm -fr language-app/lib
 	cd language-app && \
-	    $(PIP) install \
+	    $(PY27) -m pip install \
 	        --target lib \
 	        --requirement requirements.txt
 
