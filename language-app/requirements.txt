@@ -1,0 +1,47 @@
+# LEVEL 0:
+pyasn1==0.3.7
+setuptools==36.5.0
+six==1.11.0
+
+# LEVEL 1:
+cachetools==2.0.1
+# ALSO IN LEVEL 0: pyasn1==0.3.7
+pyasn1-modules==0.1.5
+rsa==3.4.2
+# ALSO IN LEVEL 0: six==1.11.0
+protobuf==3.4.0
+# ALSO IN LEVEL 0: setuptools==36.5.0
+certifi==2017.7.27.1
+chardet==3.0.4
+idna==2.6
+urllib3==1.22
+enum34==1.1.6
+futures==3.1.1
+
+# LEVEL 2:
+MarkupSafe==1.0
+google-auth==1.1.1
+googleapis-common-protos==1.5.3
+# ALSO IN LEVEL 1: protobuf==3.4.0
+requests==2.18.4
+# ALSO IN LEVEL 0: setuptools==36.5.0
+# ALSO IN LEVEL 0: six==1.11.0
+dill==0.2.7.1
+future==0.16.0
+grpcio==1.4.0
+ply==3.8
+# ALSO IN LEVEL 1: futures==3.1.1
+
+# LEVEL 3:
+click==6.7
+itsdangerous==0.24
+Jinja2==2.9.6
+Werkzeug==0.12.2
+google-cloud-core==0.27.1
+google-gax==0.15.15
+# ALSO in LEVEL 2: googleapis-common-protos==1.5.3
+# ALSO in LEVEL 1: enum34==1.1.6
+
+# LEVEL 4:
+Flask==0.12.2
+google-cloud-language==0.29.0
