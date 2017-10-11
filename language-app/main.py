@@ -237,6 +237,8 @@ def import_():
 def system_tests():
     credentials, project = google.auth.default()
     key_name, signature = app_identity.sign_blob(b'abc')
+    scope = 'https://www.googleapis.com/auth/userinfo.email'
+    token, expiry = app_identity.get_access_token(scope)
     return code_block(
         '>>> import google.auth',
         '>>> credentials, project = google.auth.default()',
@@ -251,8 +253,12 @@ def system_tests():
         repr(app_identity),
         # ALSO: get_access_token_uncached
         # (scopes, service_account_id=None)
-        # '>>> app_identity.get_access_token()',
-        # repr(app_identity.get_access_token()),
+        '>>> scope = \'https://www.googleapis.com/auth/userinfo.email\'',
+        '>>> token, expiry = app_identity.get_access_token(scope)',
+        '>>> token',
+        repr(token[:6] + b'...'),
+        '>>> expiry',
+        repr(expiry),
         '>>> app_identity.get_application_id()',
         repr(app_identity.get_application_id()),
         '>>> app_identity.get_default_gcs_bucket_name()',
