@@ -23,13 +23,16 @@ import unittest
 
 import boltons.tbutils
 import flask
-import google
 import google.protobuf
+try:
+    import grpc
+    grpc_info = None
+except ImportError as exc:
+    grpc = None
+    grpc_info = sys.exc_info()
 import pkg_resources
 import setuptools
 import six
-
-import unit_tests
 
 
 app = flask.Flask(__name__)
@@ -76,6 +79,19 @@ def main():
 @app.route('/info')
 @PrettyErrors
 def info():
+    if grpc is None:
+        exc_info = boltons.tbutils.ExceptionInfo.from_exc_info(*grpc_info)
+        grpc_msg = exc_info.get_formatted()
+    else:
+        dist = pkg_resources.get_distribution('grpcio')
+        grpc_msg = '\n'.join([
+            '>>> grpc',
+            repr(grpc),
+            '>>> dist = pkg_resources.get_distribution(\'grpcio\')',
+            '>>> dist',
+            repr(dist),
+        ])
+
     return code_block(
         '>>> import sys',
         '>>> sys',
@@ -113,9 +129,10 @@ def info():
         '>>> import google.protobuf',
         '>>> google.protobuf',
         repr(google.protobuf),
-        '>>> import unit_tests',
-        '>>> unit_tests',
-        repr(unit_tests),
+        '>>> google.protobuf.__version__',
+        repr(google.protobuf.__version__),
+        '>>> import grpc',
+        grpc_msg,
     )
 
 
@@ -132,7 +149,7 @@ def load_module(path):
 @PrettyErrors
 def tests():
     test_mods = []
-    for dirpath, _, filenames in os.walk('unit_tests'):
+    for dirpath, _, filenames in os.walk('unit-tests'):
         for filename in filenames:
             if not filename.endswith('.py'):
                 continue
@@ -156,7 +173,7 @@ def tests():
         '>>> import unittest',
         '>>>',
         '>>> test_mods = []',
-        '>>> for dirpath, _, filenames in os.walk(\'unit_tests\'):',
+        '>>> for dirpath, _, filenames in os.walk(\'unit-tests\'):',
         '...     for filename in filenames:',
         '...         if not filename.endswith(\'.py\'):',
         '...             continue',
@@ -192,7 +209,7 @@ def tests():
 
 @app.route('/import')
 @PrettyErrors
-def do_import_live():
+def import_():
     from google.cloud import language
 
     return code_block(
