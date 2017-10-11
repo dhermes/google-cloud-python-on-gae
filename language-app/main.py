@@ -34,6 +34,16 @@ import unit_tests
 
 app = flask.Flask(__name__)
 
+MAIN_HTML = """\
+<html>
+  <ul>
+    <li><a href="/info">Environment Info</a></li>
+    <li><a href="/import">Package Import Check</a></li>
+    <li><a href="/tests">Unit Test Output</a></li>
+  </ul>
+</html>
+"""
+
 
 def code_block(*lines):
     html_lines = ['<pre>']
@@ -59,8 +69,13 @@ class PrettyErrors(object):
 
 
 @app.route('/')
-@PrettyErrors
 def main():
+    return MAIN_HTML
+
+
+@app.route('/info')
+@PrettyErrors
+def info():
     return code_block(
         '>>> import sys',
         '>>> sys',
