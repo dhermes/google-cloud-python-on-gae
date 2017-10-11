@@ -64,5 +64,6 @@ clean:
 	rm -fr \
 	    language-app/clean-env \
 	    language-app/lib
+	$(PY27) convert_key.py --clean
 
 .PHONY: help language-app-run language-app-deploy clean

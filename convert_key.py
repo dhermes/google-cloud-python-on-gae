@@ -235,8 +235,24 @@ def get_args():
         'Requests that a filename for the converted PKCS#1 file be returned.')
     group.add_argument(
         '--pkcs1', action='store_true', help=pkcs1_help)
+    group.add_argument(
+        '--clean', action='store_true',
+        help='Clean up any created files.')
 
     return parser.parse_args()
+
+
+def _clean(json_filename):
+    base, _ = os.path.splitext(json_filename)
+    pkcs1_filename = '{}-PKCS1.pem'.format(base)
+    pkcs8_filename = '{}-PKCS8.pem'.format(base)
+
+    for filename in (pkcs1_filename, pkcs8_filename):
+        try:
+            os.remove(filename)
+            print('Removed {}'.format(filename))
+        except OSError:
+            pass
 
 
 def main():
@@ -245,10 +261,14 @@ def main():
     key_json, json_filename = get_key_json()
     if args.email:
         print(_require_email(key_json))
-    else:
+    elif args.pkcs1:
         pkcs8_pem = _require_private_key(key_json)
         pkcs1_filename = convert_key(pkcs8_pem, json_filename)
         print(pkcs1_filename)
+    elif args.clean:
+        _clean(json_filename)
+    else:
+        raise RuntimeError('Options not set', args)
 
 
 if __name__ == '__main__':
