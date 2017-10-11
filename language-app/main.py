@@ -13,9 +13,13 @@
 # limitations under the License.
 
 import _multiprocessing
+import functools
+import imp
+import io
 import os
 import subprocess
 import sys
+import unittest
 
 import boltons.tbutils
 import flask
@@ -24,6 +28,8 @@ import google.protobuf
 import pkg_resources
 import setuptools
 import six
+
+import unit_tests
 
 
 app = flask.Flask(__name__)
@@ -37,7 +43,23 @@ def code_block(*lines):
     return '\n'.join(html_lines)
 
 
+class PrettyErrors(object):
+
+    def __init__(self, callable_):
+        self.callable_ = callable_
+        functools.update_wrapper(self, self.callable_)
+
+    def __call__(self, *args, **kwargs):
+        try:
+            return self.callable_(*args, **kwargs)
+        except:
+            exc_info = boltons.tbutils.ExceptionInfo.from_current()
+            exc_str = exc_info.get_formatted()
+            return code_block(exc_str)
+
+
 @app.route('/')
+@PrettyErrors
 def main():
     return code_block(
         '>>> import sys',
@@ -76,20 +98,90 @@ def main():
         '>>> import google.protobuf',
         '>>> google.protobuf',
         repr(google.protobuf),
+        '>>> import unit_tests',
+        '>>> unit_tests',
+        repr(unit_tests),
+    )
+
+
+def load_module(path):
+    dirname, basename = os.path.split(path)
+    mod_name, extension = os.path.splitext(basename)
+    assert extension == '.py'
+    file_obj, filename, details = imp.find_module(mod_name, [dirname])
+    return imp.load_module(
+        mod_name, file_obj, filename, details)
+
+
+@app.route('/tests')
+@PrettyErrors
+def tests():
+    test_mods = []
+    for dirpath, _, filenames in os.walk('unit_tests'):
+        for filename in filenames:
+            if not filename.endswith('.py'):
+                continue
+            if filename == '__init__.py':
+                continue
+            test_mods.append(os.path.join(dirpath, filename))
+
+    mod_objs = [load_module(path) for path in test_mods]
+    suite = unittest.TestSuite()
+    for mod_obj in mod_objs:
+        tests = unittest.defaultTestLoader.loadTestsFromModule(mod_obj)
+        suite.addTest(tests)
+
+    stream = io.BytesIO()
+    test_result = unittest.TextTestRunner(
+        stream=stream, verbosity=2).run(suite)
+
+    return code_block(
+        '>>> import imp',
+        '>>> import os',
+        '>>> import unittest',
+        '>>>',
+        '>>> test_mods = []',
+        '>>> for dirpath, _, filenames in os.walk(\'unit_tests\'):',
+        '...     for filename in filenames:',
+        '...         if not filename.endswith(\'.py\'):',
+        '...             continue',
+        '...         if filename == \'__init__.py\':',
+        '...             continue',
+        '...         test_mods.append(os.path.join(dirpath, filename))',
+        '...',
+        '>>> for path in test_mods:',
+        '...     print(path)',
+        '...',
+        '\n'.join(test_mods),
+        '>>>',
+        '>>> def load_module(path):',
+        '...     dirname, basename = os.path.split(path)',
+        '...     mod_name, extension = os.path.splitext(basename)',
+        '...     assert extension == \'.py\'',
+        '...     file_obj, filename, details = imp.find_module(mod_name, [dirname])',
+        '...     return imp.load_module(',
+        '...         mod_name, file_obj, filename, details)',
+        '...',
+        '>>>',
+        '>>> mod_objs = [load_module(path) for path in test_mods]',
+        '>>>',
+        '>>> suite = unittest.TestSuite()',
+        '>>> for mod_obj in mod_objs:',
+        '...     tests = unittest.defaultTestLoader.loadTestsFromModule(mod_obj)',
+        '...     suite.addTest(tests)',
+        '...',
+        '>>> unittest.TextTestRunner(verbosity=2).run(suite)',
+        stream.getvalue(),
     )
 
 
 @app.route('/import')
+@PrettyErrors
 def do_import_live():
-    try:
-        from google.cloud import language
+    from google.cloud import language
 
-        return code_block(
-            '>>> from google.cloud import language',
-            '>>> language',
-            repr(language),
-        )
-    except:
-        exc_info = boltons.tbutils.ExceptionInfo.from_current()
-        exc_str = exc_info.get_formatted()
-        return code_block(exc_str)
+    return code_block(
+        '>>> from google.cloud import language',
+        '>>> language',
+        repr(language),
+    )

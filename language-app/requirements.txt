@@ -60,3 +60,11 @@ google-gax==0.15.15
 Flask==0.12.2
 google-cloud-language==0.29.0
 boltons==17.1.0
+
+# TESTING LEVEL 0:
+funcsigs==1.0.2
+pbr==3.1.1
+# ALSO IN LEVEL 0: six==1.11.0
+
+# TESTING LEVEL 1:
+mock==2.0.0
