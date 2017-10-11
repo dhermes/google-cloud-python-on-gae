@@ -31,8 +31,11 @@ language-app/lib: language-app/requirements.txt
 	    $(PY27) -m pip install \
 	        --target lib \
 	        --requirement requirements.txt
+	# Icky ``grpcio`` hacks:
 	cd language-app && rm -fr lib/grpc
 	cd language-app && rm -fr lib/grpcio-1.4.0.dist-info
+	cd language-app/lib && \
+	    ln -s ../grpcio-1.0.0.dist-info grpcio-1.0.0.dist-info
 
 language-app/clean-env:
 	cd language-app && \

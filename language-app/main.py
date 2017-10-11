@@ -83,14 +83,23 @@ def info():
         exc_info = boltons.tbutils.ExceptionInfo.from_exc_info(*grpc_info)
         grpc_msg = exc_info.get_formatted()
     else:
-        dist = pkg_resources.get_distribution('grpcio')
-        grpc_msg = '\n'.join([
-            '>>> grpc',
-            repr(grpc),
-            '>>> dist = pkg_resources.get_distribution(\'grpcio\')',
-            '>>> dist',
-            repr(dist),
-        ])
+        try:
+            dist = pkg_resources.get_distribution('grpcio')
+            grpc_msg = '\n'.join([
+                '>>> grpc',
+                repr(grpc),
+                '>>> dist = pkg_resources.get_distribution(\'grpcio\')',
+                '>>> dist',
+                repr(dist),
+            ])
+        except pkg_resources.DistributionNotFound:
+            exc_info = boltons.tbutils.ExceptionInfo.from_current()
+            grpc_msg = '\n'.join([
+                '>>> grpc',
+                repr(grpc),
+                '>>> dist = pkg_resources.get_distribution(\'grpcio\')',
+                exc_info.get_formatted(),
+            ])
 
     return code_block(
         '>>> import sys',
