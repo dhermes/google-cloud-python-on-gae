@@ -17,12 +17,13 @@ DEV_APPSERVER?=$(shell which dev_appserver.py)
 GCLOUD?=gcloud
 
 help:
-	@echo 'Makefile for a google-cloud-python-on-gae  '
-	@echo '                                           '
-	@echo 'Usage:                                     '
-	@echo '   make language-app  Run language app     '
-	@echo '   make clean         Clean generated files'
-	@echo '                                           '
+	@echo 'Makefile for a google-cloud-python-on-gae'
+	@echo ''
+	@echo 'Usage:'
+	@echo '   make language-app-run       Run language app'
+	@echo '   make language-app-deploy    Deploy language app'
+	@echo '   make clean                  Clean generated files'
+	@echo ''
 
 language-app/lib: language-app/requirements.txt
 	rm -fr language-app/lib
@@ -40,10 +41,14 @@ language-app/clean-env:
 	    clean-env/bin/pip install \
 	        --requirement env-requirements.txt
 
-language-app: language-app/lib language-app/clean-env language-app/app.yaml
-	$(GCLOUD) components update
+language-app-run: language-app/lib language-app/clean-env language-app/app.yaml
+	# $(GCLOUD) components update
 	cd language-app && \
 	    clean-env/bin/python2.7 $(DEV_APPSERVER) app.yaml
+
+language-app-deploy: language-app/lib language-app/app.yaml
+	cd language-app && \
+	    $(GCLOUD) app deploy app.yaml
 
 clean:
 	rm -f \
@@ -53,4 +58,4 @@ clean:
 	    language-app/clean-env \
 	    language-app/lib
 
-.PHONY: help language-app clean
+.PHONY: help language-app-run language-app-deploy clean
