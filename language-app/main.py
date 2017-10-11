@@ -23,6 +23,7 @@ import unittest
 
 import boltons.tbutils
 import flask
+import google.auth
 import google.protobuf
 try:
     import grpc
@@ -34,6 +35,8 @@ import pkg_resources
 import setuptools
 import six
 
+from google.appengine.api import app_identity
+
 
 app = flask.Flask(__name__)
 
@@ -42,7 +45,8 @@ MAIN_HTML = """\
   <ul>
     <li><a href="/info">Environment Info</a></li>
     <li><a href="/import">Package Import Check</a></li>
-    <li><a href="/tests">Unit Test Output</a></li>
+    <li><a href="/unit-tests">Unit Test Output</a></li>
+    <li><a href="/system-tests">System Test Output</a></li>
   </ul>
 </html>
 """
@@ -154,9 +158,9 @@ def load_module(path):
         mod_name, file_obj, filename, details)
 
 
-@app.route('/tests')
+@app.route('/unit-tests')
 @PrettyErrors
-def tests():
+def unit_tests():
     test_mods = []
     for dirpath, _, filenames in os.walk('unit-tests'):
         for filename in filenames:
@@ -225,4 +229,43 @@ def import_():
         '>>> from google.cloud import language',
         '>>> language',
         repr(language),
+    )
+
+
+@app.route('/system-tests')
+@PrettyErrors
+def system_tests():
+    credentials, project = google.auth.default()
+    key_name, signature = app_identity.sign_blob(b'abc')
+    return code_block(
+        '>>> import google.auth',
+        '>>> credentials, project = google.auth.default()',
+        '>>> credentials',
+        repr(credentials),
+        '>>> project',
+        repr(project),
+        '>>> credentials.__dict__',
+        repr(credentials.__dict__),
+        '>>> from google.appengine.api import app_identity',
+        '>>> app_identity',
+        repr(app_identity),
+        # ALSO: get_access_token_uncached
+        # (scopes, service_account_id=None)
+        # '>>> app_identity.get_access_token()',
+        # repr(app_identity.get_access_token()),
+        '>>> app_identity.get_application_id()',
+        repr(app_identity.get_application_id()),
+        '>>> app_identity.get_default_gcs_bucket_name()',
+        repr(app_identity.get_default_gcs_bucket_name()),
+        '>>> app_identity.get_default_version_hostname()',
+        repr(app_identity.get_default_version_hostname()),
+        '>>> app_identity.get_public_certificates()',
+        repr(app_identity.get_public_certificates()),
+        '>>> app_identity.get_service_account_name()',
+        repr(app_identity.get_service_account_name()),
+        '>>> key_name, signature = app_identity.sign_blob(b\'abc\')',
+        '>>> key_name',
+        repr(key_name),
+        '>>> signature',
+        repr(signature[:16] + b'...'),
     )

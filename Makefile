@@ -15,6 +15,8 @@
 PY27?=python2.7
 DEV_APPSERVER?=$(shell which dev_appserver.py)
 GCLOUD?=gcloud
+GAE_EMAIL=$(shell $(PY27) convert_key.py --email)
+GAE_KEY=$(shell $(PY27) convert_key.py --pkcs1)
 
 help:
 	@echo 'Makefile for a google-cloud-python-on-gae'
@@ -47,7 +49,9 @@ language-app/clean-env:
 language-app-run: language-app/lib language-app/clean-env language-app/app.yaml
 	# $(GCLOUD) components update
 	cd language-app && \
-	    clean-env/bin/python2.7 $(DEV_APPSERVER) app.yaml
+	    clean-env/bin/python2.7 $(DEV_APPSERVER) app.yaml \
+	        --appidentity_email_address $(GAE_EMAIL) \
+	        --appidentity_private_key_path $(GAE_KEY)
 
 language-app-deploy: language-app/lib language-app/app.yaml
 	cd language-app && \
