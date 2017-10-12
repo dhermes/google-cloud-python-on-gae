@@ -21,7 +21,8 @@ Getting this to work on prod and dev took a number of workarounds:
     [`env-requirements.txt`][7]).
 -   Had to [patch][12] the constructor for
     `google.appengine.tools.devappserver2.python.runtime.stubs.FakeFile`,
-    it does not match the builtin `file`. As of `gcloud 175.0.0`:
+    it does not match the [builtin `file`][13] (uses `bufsize` instead
+    of `buffering` as keyword). As of `gcloud 175.0.0`:
 
     ```
     $ cd ~/google-cloud-sdk/platform/google_appengine/google/appengine/
@@ -107,3 +108,4 @@ There are still some frustrating issues:
 [10]: https://www.python.org/dev/peps/pep-0394/
 [11]: https://github.com/dhermes/google-cloud-python-on-gae/issues/1
 [12]: https://github.com/dhermes/google-cloud-python-on-gae/blob/a7b450a3428087e96db45885eaff08f7f2963f60/language-app/appengine_config.py#L128-L145
+[13]: https://docs.python.org/2/library/functions.html#file
