@@ -321,3 +321,11 @@ def system_tests():
         '>>> response',
         repr(response)
     )
+
+
+@app.errorhandler(500)
+def server_error(exc):
+    # Log the error and stacktrace (``logging.exception`` will
+    # automatically add the stacktrace).
+    logging.exception('An error occurred during a request.')
+    return 'An internal error occurred.', 500

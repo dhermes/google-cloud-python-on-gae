@@ -84,21 +84,60 @@ Getting this to work on prod and dev took a number of workarounds:
 
 There are still some frustrating issues:
 
-- Some [libraries][6] in prod over-ride any vendored in equivalent (see e.g.
-  `google.protobuf` in [`/info`][9]). This **does not** occur in dev.
-- `grpc` does not come with a `dist-info` directory.
-- Had to make sure to run `python2.7 $(which dev_appserver.py)` rather than
-  just `dev_appservery.py` on a system where the bare `python` is not 2.7
-  (though this is in violation of [PEP 394][10], so I deserve it).
-- Had to [HTML-escape][11] a hyphen in my `app.yaml` config (i.e.
-  `clean&#2D;env/` instead of `clean-env/`). This actually blocks the
-  `devappserver` from even starting.
-- Uploading the app includes **926 files** (at 41.2 MB)! This is because
-  `lib/` is so **very big**.
-- On App Engine (prod) gRPC stalled the entire request for 30s and
-  the page just came back with 500, with **no** stacktrace in the
-  logs. Then after an hour or so, it just magically started working.
-  [@jonparrott][14] experienced the same heisen-bug.
+-   Some [libraries][6] in prod over-ride any vendored in equivalent (see e.g.
+    `google.protobuf` in [`/info`][9]). This **does not** occur in dev.
+-   `grpc` does not come with a `dist-info` directory.
+-   Had to make sure to run `python2.7 $(which dev_appserver.py)` rather than
+    just `dev_appservery.py` on a system where the bare `python` is not 2.7
+    (though this is in violation of [PEP 394][10], so I deserve it).
+-   Had to [HTML-escape][11] a hyphen in my `app.yaml` config (i.e.
+    `clean&#2D;env/` instead of `clean-env/`). This actually blocks the
+    `devappserver` from even starting.
+-   Uploading the app includes **926 files** (at 41.2 MB)! This is because
+    `lib/` is so **very big**.
+-   On App Engine (prod) gRPC stalled the entire request for 30s and
+    the page just came back with 500, with **no** stacktrace in the
+    logs. Then after an hour or so, it just magically started working.
+    [@jonparrott][14] experienced the same heisen-bug:
+
+    ```
+    Traceback (most recent call last):
+      File "/base/data/home/runtimes/python27_experiment/python27_lib/versions/1/google/appengine/runtime/wsgi.py", line 267, in Handle
+        result = handler(dict(self._environ), self._StartResponse)
+      File "/base/data/home/apps/s~{APP}/{VERSION}/lib/flask/app.py", line 1997, in __call__
+        return self.wsgi_app(environ, start_response)
+      File "/base/data/home/apps/s~{APP}/{VERSION}/lib/flask/app.py", line 1982, in wsgi_app
+        response = self.full_dispatch_request()
+      File "/base/data/home/apps/s~{APP}/{VERSION}/lib/flask/app.py", line 1612, in full_dispatch_request
+        rv = self.dispatch_request()
+      File "/base/data/home/apps/s~{APP}/{VERSION}/lib/flask/app.py", line 1598, in dispatch_request
+        return self.view_functions[rule.endpoint](**req.view_args)
+      File "/base/data/home/apps/s~{APP}/{VERSION}/main.py", line 47, in index
+        snippets.quickstart_add_data_one()
+      File "/base/data/home/apps/s~{APP}/{VERSION}/snippets.py", line 38, in quickstart_add_data_one
+        u'born': 1815
+      File "/base/data/home/apps/s~{APP}/{VERSION}/lib/google/cloud/firestore_v1beta1/document.py", line 224, in set
+        write_results = batch.commit()
+      File "/base/data/home/apps/s~{APP}/{VERSION}/lib/google/cloud/firestore_v1beta1/batch.py", line 135, in commit
+        transaction=None, options=self._client._call_options)
+      File "/base/data/home/apps/s~{APP}/{VERSION}/lib/google/cloud/firestore_v1beta1/gapic/firestore_client.py", line 851, in commit
+        return self._commit(request, options)
+      File "/base/data/home/apps/s~{APP}/{VERSION}/lib/google/gax/api_callable.py", line 452, in inner
+        return api_caller(api_call, this_settings, request)
+      File "/base/data/home/apps/s~{APP}/{VERSION}/lib/google/gax/api_callable.py", line 438, in base_caller
+        return api_call(*args)
+      File "/base/data/home/apps/s~{APP}/{VERSION}/lib/google/gax/api_callable.py", line 376, in inner
+        return a_func(*args, **kwargs)
+      File "/base/data/home/apps/s~{APP}/{VERSION}/lib/google/gax/retry.py", line 68, in inner
+        return a_func(*updated_args, **kwargs)
+      File "/base/data/home/runtimes/python27_experiment/python27_lib/versions/third_party/grpcio-1.0.0/grpc/_channel.py", line 488, in __call__
+        state, deadline, = self._blocking(request, timeout, metadata, credentials)
+      File "/base/data/home/runtimes/python27_experiment/python27_lib/versions/third_party/grpcio-1.0.0/grpc/_channel.py", line 484, in _blocking
+        _handle_event(completion_queue.poll(), state, self._response_deserializer)
+      File "/base/data/home/runtimes/python27_experiment/python27_lib/versions/third_party/grpcio-1.0.0/grpc/_channel.py", line 144, in _handle_event
+        state.due.remove(operation_type)
+    DeadlineExceededError: The overall deadline for responding to the HTTP request was exceeded.
+    ```
 
 [1]: https://github.com/GoogleCloudPlatform/google-cloud-python
 [2]: https://cloud.google.com/appengine/docs/python/
