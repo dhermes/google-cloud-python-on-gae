@@ -95,6 +95,10 @@ There are still some frustrating issues:
   `devappserver` from even starting.
 - Uploading the app includes **926 files**! This is because `lib/` is
   so **very big**.
+- On App Engine (prod) gRPC stalled the entire request for 30s and
+  the page just came back with 500, with **no** stacktrace in the
+  logs. Then after an hour or so, it just magically started working.
+  [@jonparrott][14] experienced the same heisen-bug.
 
 [1]: https://github.com/GoogleCloudPlatform/google-cloud-python
 [2]: https://cloud.google.com/appengine/docs/python/
@@ -109,3 +113,4 @@ There are still some frustrating issues:
 [11]: https://github.com/dhermes/google-cloud-python-on-gae/issues/1
 [12]: https://github.com/dhermes/google-cloud-python-on-gae/blob/a7b450a3428087e96db45885eaff08f7f2963f60/language-app/appengine_config.py#L128-L145
 [13]: https://docs.python.org/2/library/functions.html#file
+[14]: https://github.com/jonparrott
