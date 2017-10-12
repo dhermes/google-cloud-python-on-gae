@@ -16,18 +16,48 @@ Getting this to work on prod and dev took a number of workarounds:
 
 ### Dev
 
-- Using a custom Python 2.7 `virtualenv` with the same (very old)
-  versions provided as [libraries][6] in App Engine (set up via
-  [`env-requirements.txt`][7]).
-- Had to patch the constructor for
-  `google.appengine.tools.devappserver2.python.runtime.stubs.FakeFile`,
-  it does not match the builtin `file`.
-- Patch builtin `open` so that it can handle opening `/dev/null`. This
-  is because `dill` (a dependency of `google-gax`) uses `open` to
-  alias the builtin `file` type (it's not so easy on Python 3).
-  We will be dropping `dill` in the future (it is a more extreme
-  version of `pickle`, it's not a great design choice to use object
-  serialization).
+-   Using a custom Python 2.7 `virtualenv` with the same (very old)
+    versions provided as [libraries][6] in App Engine (set up via
+    [`env-requirements.txt`][7]).
+-   Had to [patch][12] the constructor for
+    `google.appengine.tools.devappserver2.python.runtime.stubs.FakeFile`,
+    it does not match the builtin `file`. As of `gcloud 175.0.0`:
+
+    ```
+    $ cd ~/google-cloud-sdk/platform/google_appengine/google/appengine/
+    $ cd tools/devappserver2/python/runtime/
+    $ cat stubs.py | grep -n -B 10 -A 13 'def __init__.*filename'
+    265-      if FakeFile._skip_files.match(relative_filename):
+    266-        visibility = FakeFile.Visibility.SKIP_BLOCK
+    267-      elif FakeFile._static_files.match(relative_filename):
+    268-        visibility = FakeFile.Visibility.STATIC_BLOCK
+    269-
+    270-    with FakeFile._availability_cache_lock:
+    271-      FakeFile._availability_cache[fixed_filename] = (
+    272-          visibility == FakeFile.Visibility.OK)
+    273-    return visibility
+    274-
+    275:  def __init__(self, filename, mode='r', bufsize=-1, **kwargs):
+    276-    """Initializer. See file built-in documentation."""
+    277-    if mode not in FakeFile.ALLOWED_MODES:
+    278-      raise IOError(errno.EROFS, 'Read-only file system', filename)
+    279-
+    280-    visible = FakeFile.is_file_accessible(filename)
+    281-    if visible != FakeFile.Visibility.OK:
+    282-      log_access_check_fail(filename, visible)
+    283-      raise IOError(errno.EACCES, 'file not accessible', filename)
+    284-
+    285-    super(FakeFile, self).__init__(filename, mode, bufsize, **kwargs)
+    286-
+    287-
+    288-class RestrictedPathFunction(object):
+    ```
+-   Patch builtin `open` so that it can handle opening `/dev/null`. This
+    is because `dill` (a dependency of `google-gax`) uses `open` to
+    alias the builtin `file` type (it's not so easy on Python 3).
+    We will be dropping `dill` in the future (it is a more extreme
+    version of `pickle`, it's not a great design choice to use object
+    serialization).
 
 ### Prod
 
@@ -76,3 +106,4 @@ There are still some frustrating issues:
 [9]: https://precise-truck-742.appspot.com/info
 [10]: https://www.python.org/dev/peps/pep-0394/
 [11]: https://github.com/dhermes/google-cloud-python-on-gae/issues/1
+[12]: https://github.com/dhermes/google-cloud-python-on-gae/blob/a7b450a3428087e96db45885eaff08f7f2963f60/language-app/appengine_config.py#L128-L145
