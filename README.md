@@ -93,8 +93,8 @@ There are still some frustrating issues:
 - Had to [HTML-escape][11] a hyphen in my `app.yaml` config (i.e.
   `clean&#2D;env/` instead of `clean-env/`). This actually blocks the
   `devappserver` from even starting.
-- Uploading the app includes **926 files**! This is because `lib/` is
-  so **very big**.
+- Uploading the app includes **926 files** (at 41.2 MB)! This is because
+  `lib/` is so **very big**.
 - On App Engine (prod) gRPC stalled the entire request for 30s and
   the page just came back with 500, with **no** stacktrace in the
   logs. Then after an hour or so, it just magically started working.
