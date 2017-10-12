@@ -96,9 +96,9 @@ There are still some frustrating issues:
 -   Uploading the app includes **926 files** (at 41.2 MB)! This is because
     `lib/` is so **very big**.
 -   On App Engine (prod) gRPC stalled the entire request for 30s and
-    the page just came back with 500, with **no** stacktrace in the
-    logs. Then after an hour or so, it just magically started working.
-    [@jonparrott][14] experienced the same heisen-bug:
+    the page just came back with 500. Then after an hour or so, it just
+    magically started working. [@jonparrott][14] experienced the same
+    heisen-bug:
 
     ```
     Traceback (most recent call last):
