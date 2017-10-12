@@ -53,7 +53,7 @@ Getting this to work on prod and dev took a number of workarounds:
 
 There are still some frustrating issues:
 
-- The [libraries][6] in prod over-ride any vendored in equivalent (see e.g.
+- Some [libraries][6] in prod over-ride any vendored in equivalent (see e.g.
   `google.protobuf` in [`/info`][9]). This **does not** occur in dev.
 - `grpc` does not come with a `dist-info` directory.
 - Had to make sure to run `python2.7 $(which dev_appserver.py)` rather than
@@ -62,6 +62,8 @@ There are still some frustrating issues:
 - Had to [HTML-escape][11] a hyphen in my `app.yaml` config (i.e.
   `clean&#2D;env/` instead of `clean-env/`). This actually blocks the
   `devappserver` from even starting.
+- Uploading the app includes **926 files**! This is because `lib/` is
+  so **very big**.
 
 [1]: https://github.com/GoogleCloudPlatform/google-cloud-python
 [2]: https://cloud.google.com/appengine/docs/python/
