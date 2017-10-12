@@ -59,6 +59,9 @@ There are still some frustrating issues:
 - Had to make sure to run `python2.7 $(which dev_appserver.py)` rather than
   just `dev_appservery.py` on a system where the bare `python` is not 2.7
   (though this is in violation of [PEP 394][10], so I deserve it).
+- Had to [HTML-escape][11] a hyphen in my `app.yaml` config (i.e.
+  `clean&#2D;env/` instead of `clean-env/`). This actually blocks the
+  `devappserver` from even starting.
 
 [1]: https://github.com/GoogleCloudPlatform/google-cloud-python
 [2]: https://cloud.google.com/appengine/docs/python/
@@ -70,3 +73,4 @@ There are still some frustrating issues:
 [8]: https://github.com/dhermes/google-cloud-python-on-gae/blob/master/language-app/requirements.txt
 [9]: https://precise-truck-742.appspot.com/info
 [10]: https://www.python.org/dev/peps/pep-0394/
+[11]: https://github.com/dhermes/google-cloud-python-on-gae/issues/1
