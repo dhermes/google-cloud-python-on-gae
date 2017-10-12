@@ -139,7 +139,7 @@ def patch_dev_fake_file():
     ``FileType`` is used.
     """
     if devappserver2 is None:
-        # NOTE: This means we are running in productions
+        # NOTE: This means we are running in production.
         return
 
     stubs.FakeFile.__init__ = _fake_file_init
