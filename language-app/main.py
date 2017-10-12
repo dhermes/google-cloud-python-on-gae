@@ -44,6 +44,7 @@ MAIN_HTML = """\
 <html>
   <ul>
     <li><a href="/info">Environment Info</a></li>
+    <li><a href="/auth-check">Auth Info</a></li>
     <li><a href="/import">Package Import Check</a></li>
     <li><a href="/unit-tests">Unit Test Output</a></li>
     <li><a href="/system-tests">System Test Output</a></li>
@@ -232,9 +233,9 @@ def import_():
     )
 
 
-@app.route('/system-tests')
+@app.route('/auth-check')
 @PrettyErrors
-def system_tests():
+def auth_check():
     credentials, project = google.auth.default()
     key_name, signature = app_identity.sign_blob(b'abc')
     scope = 'https://www.googleapis.com/auth/userinfo.email'
@@ -274,4 +275,44 @@ def system_tests():
         repr(key_name),
         '>>> signature',
         repr(signature[:16] + b'...'),
+    )
+
+
+@app.route('/system-tests')
+@PrettyErrors
+def system_tests():
+    # NOTE: We intentionally import at run-time.
+    from google.cloud import language_v1
+    from google.cloud.language_v1 import enums
+
+    scopes = language_v1.LanguageServiceClient._ALL_SCOPES
+    credentials, _ = google.auth.default(scopes=scopes)
+    client = language_v1.LanguageServiceClient(credentials=credentials)
+    content = 'Hello, world!'
+    type_ = enums.Document.Type.PLAIN_TEXT
+    document = {'content': content, 'type': type_}
+    response = client.analyze_sentiment(document)
+
+    return code_block(
+        '>>> from google.cloud import language_v1',
+        '>>> from google.cloud.language_v1 import enums',
+        '>>>',
+        '>>> scopes = language_v1.LanguageServiceClient._ALL_SCOPES',
+        '>>> scopes',
+        repr(scopes),
+        '>>> credentials, _ = google.auth.default(scopes=scopes)',
+        '>>> credentials',
+        repr(credentials),
+        '>>>',
+        '>>> client = language_v1.LanguageServiceClient(credentials=credentials)',
+        '>>> client',
+        repr(client),
+        '>>>',
+        '>>> content = \'Hello, world!\'',
+        '>>> type_ = enums.Document.Type.PLAIN_TEXT',
+        '>>> document = {\'content\': content, \'type\': type_}',
+        '>>> response = client.analyze_sentiment(document)',
+        '>>>',
+        '>>> response',
+        repr(response)
     )
