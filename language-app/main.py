@@ -16,6 +16,7 @@ import _multiprocessing
 import functools
 import imp
 import io
+import logging
 import os
 import subprocess
 import sys
@@ -287,11 +288,15 @@ def system_tests():
 
     scopes = language_v1.LanguageServiceClient._ALL_SCOPES
     credentials, _ = google.auth.default(scopes=scopes)
+    logging.info('credentials: %r', credentials)
     client = language_v1.LanguageServiceClient(credentials=credentials)
+    logging.info('client: %r', client)
     content = 'Hello, world!'
     type_ = enums.Document.Type.PLAIN_TEXT
     document = {'content': content, 'type': type_}
+    logging.info('document: %r', document)
     response = client.analyze_sentiment(document)
+    logging.info('response: %r', response)
 
     return code_block(
         '>>> from google.cloud import language_v1',

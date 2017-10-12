@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Helper to convert a JSON key file into a  PEM PKCS#1 key."""
+"""Helper to convert a JSON key file into a PEM PKCS#1 key."""
 
 from __future__ import print_function
 
